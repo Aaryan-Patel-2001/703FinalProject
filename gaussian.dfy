@@ -30,11 +30,6 @@ requires arraySquaredSum(q_hat[..]) <= 1.0
 }
 
 
-
-function {:axiom} squaredValueAxiom(x:real) : bool 
-requires  -1.0 <= x <= 1.0
-ensures x * x <= 1.0
-
 function arraySquaredSum(a: seq<real>): real
 requires |a| > 0
 {
@@ -43,30 +38,3 @@ requires |a| > 0
   else 
     (a[0]*a[0]) + arraySquaredSum(a[1..])
 }
-
-/*
-predicate P1(x:real)
-{
- (x*x) <= 1.0 
-}
-
-predicate P2(x:real)
-{
- -1.0 <= x <= 1.0
-}
-
-method myfun2(x:real) returns (out:int)
-requires -1.0<=x<=1.0
-{
- assert -1.0<= -1.0*x <= 1.0;
- out := 0;
-}
-
-method myfunc(x:real) returns (out:int) 
-requires -1.0<=x<=1.0
-{
- assert(x*x<=1.0);
- out := 0;
-}
-*/
-// add axioms for line 22
