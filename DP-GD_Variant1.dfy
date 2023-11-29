@@ -1,9 +1,9 @@
 // In this variant of DP-GD, we add noise to the summation gradient instead of adding noise to gradient of each sample point
-method DPGD_SummationGradientPerturbation (x:array<real>, size:int, L:array<real>, learning_rate:real, noise_scale:real, gradient_norm_bound:real, iterations:int) returns (Para:real, PrivacyLost:real)
+method DPGD_SummationGradientPerturbation (size:int, learning_rate:real, noise_scale:real, gradient_norm_bound:real, iterations:int) returns (Para:real, PrivacyLost:real)
   requires iterations>=0
   requires size>=0
   requires noise_scale >= 1.0
-
+  requires -1.0 <= gradient_norm_bound <= 1.0
 {
   var thetha:array<real> := new real[iterations+1];
   thetha[0] := *;
@@ -22,7 +22,8 @@ method DPGD_SummationGradientPerturbation (x:array<real>, size:int, L:array<real
       invariant i <= size
     {
       var gradient:real := *;
-      assume(gradient*gradient<=gradient_norm_bound*gradient_norm_bound);
+      // Note: We do not need to clip the value of the gradient.
+      // Instead, we clip the sensitivity of the gradient by the gradient_norm_bound provided by the user
       summation_gradient := summation_gradient + gradient;
       i := i + 1;
     }
