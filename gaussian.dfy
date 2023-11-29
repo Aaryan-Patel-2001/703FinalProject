@@ -1,37 +1,32 @@
 // VERIFY USING DAFNY:
 // /Applications/dafny/dafny /Users/apple/GaussianDP/Dafny/gaussian.dfy
-method gaussian (epsilon:real, delta:real, size:int, q: array<real>, SHADOWDP_ALIGNED_DISTANCE_q: array<real>, SHADOWDP_SHADOW_DISTANCE_q: array<real>) returns (out: real)
-requires size>0
-requires epsilon>0.0
-requires forall k: int :: 0 <= k < SHADOWDP_ALIGNED_DISTANCE_q.Length ==> -1.0 <= SHADOWDP_ALIGNED_DISTANCE_q[k] <= 1.0
-requires SHADOWDP_ALIGNED_DISTANCE_q.Length==size
+method gaussian (size:int, q: array<real>, q_hat: array<real>) returns (out: array<real>)
+requires q_hat.Length==size
 requires q.Length==size
-requires SHADOWDP_SHADOW_DISTANCE_q.Length==size
-
+requires size > 0
+requires arraySquaredSum(q_hat[..]) <= 1.0
 {
- var alpha : real := 0.0;
  var i : int := 0;
- var tau : real := *;
+  var alpha : real := arraySquaredSum(q_hat[..1]);
  var eta: real := 0.0;
  var eta_hat: real := 0.0;
+ out := new real[size];
  while (i <size)
- invariant alpha == (i as real) * tau
+ invariant 0 < i <= size ==> alpha <= arraySquaredSum(q_hat[..i])
  invariant i<=size
- invariant i<size ==>-1.0 <= SHADOWDP_ALIGNED_DISTANCE_q[i] <= 1.0
  {
-  assume (forall x : real :: -1.0 <= x <= 1.0 ==> x * x <= 1.0 );
   eta := *;
-  eta_hat := - SHADOWDP_ALIGNED_DISTANCE_q[i];
-  assert (eta_hat * eta_hat <= 1.0);
-//   assert (-1.0 <= eta_hat <= 1.0);
-//   assert ( squaredValueAxiom(eta_hat))
-  alpha := alpha + tau;
-  assert (SHADOWDP_ALIGNED_DISTANCE_q[i] + eta_hat ==0.0);
-  out := q[i] + eta;
+  eta_hat := - q_hat[i];
+  alpha := arraySquaredSum(q_hat[..i+1]);
+  assert (q_hat[i] + eta_hat ==0.0);
+  out[i] := q[i] + eta;
   i := i+1;
  }
  assert i==size;
- assert alpha == (size as real) * tau;
+ assert alpha <= arraySquaredSum(q_hat[..size]);
+ assert q_hat[..size] == q_hat[..];
+ assert alpha <= arraySquaredSum(q_hat[..]);
+ assert alpha <= 1.0;
 }
 
 
@@ -40,6 +35,14 @@ function {:axiom} squaredValueAxiom(x:real) : bool
 requires  -1.0 <= x <= 1.0
 ensures x * x <= 1.0
 
+function arraySquaredSum(a: seq<real>): real
+requires |a| > 0
+{
+  if |a| == 1 then 
+    a[0]*a[0]
+  else 
+    (a[0]*a[0]) + arraySquaredSum(a[1..])
+}
 
 /*
 predicate P1(x:real)
