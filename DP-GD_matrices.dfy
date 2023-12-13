@@ -35,6 +35,9 @@ method DPGD (x:array<array<real>>, rows:int, columns:int, learning_rate:real, no
   PrivacyLost := alpha;
 }
 
+// A = [ _ _ _ _ ]
+// /A := *; 
+
 method gradientBlackBox(x:array<array<real>>, rows:int, columns:int) returns (gradient: array<real>, gradient_hat:array<real>)
   requires rows > 0
   requires columns > 0
